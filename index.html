@@ -2,507 +2,115 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Tháng Tư Là Lời Nói Dối Của Em · Lyrics Karaoke</title>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Tháng Tư Remix - Final Edition</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            background: #000; color: #fff;
+            font-family: 'Arial Black', sans-serif;
+            overflow: hidden; display: flex;
+            justify-content: center; align-items: center;
         }
 
-        body {
-            background: linear-gradient(145deg, #0b0e14 0%, #1a1f2c 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Quicksand', sans-serif;
-            padding: 16px;
-            position: relative;
-            overflow: hidden;
+        #lyrics-container {
+            text-align: center; width: 90%;
+            perspective: 1000px;
         }
 
-        /* Hiệu ứng ánh sáng nền (moody, buồn) */
-        .ambient-light {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 30% 40%, rgba(255, 180, 180, 0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 60%, rgba(180, 220, 255, 0.06) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
+        #lyrics-text {
+            font-size: 4.5rem; font-weight: 900;
+            text-transform: uppercase; line-height: 1.2;
+            transition: all 0.1s ease-out;
+            /* Hiệu ứng Neon cực mạnh */
+            text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 40px #00ffff, 0 0 80px #00ffff;
+            opacity: 0; transform: scale(0.5);
         }
 
-        /* Màn hình chờ "Chạm để bắt đầu" */
-        #splash-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #0d1017;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: opacity 0.8s ease, visibility 0.8s;
-            cursor: pointer;
-            backdrop-filter: blur(8px);
+        #lyrics-text.active {
+            opacity: 1; transform: scale(1);
         }
 
-        .splash-content {
-            text-align: center;
-            animation: pulseGlow 2.2s infinite;
+        #play-btn {
+            position: fixed; padding: 25px 50px;
+            font-size: 1.8rem; background: #00ffff;
+            border: none; border-radius: 50px;
+            cursor: pointer; box-shadow: 0 0 30px #00ffff;
+            font-weight: bold; z-index: 1000;
         }
 
-        .splash-icon {
-            font-size: 80px;
-            margin-bottom: 24px;
-            filter: drop-shadow(0 0 20px rgba(255, 120, 160, 0.5));
-            color: #ffb6c1;
-        }
-
-        .splash-title {
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            background: linear-gradient(135deg, #ffd6e0, #c8e7ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 12px;
-        }
-
-        .splash-sub {
-            color: #9aa4bf;
-            font-size: 16px;
-            font-weight: 400;
-            letter-spacing: 2px;
-        }
-
-        .splash-hint {
-            margin-top: 60px;
-            color: #5f6b8a;
-            font-size: 14px;
-            border: 1px solid #2f3a52;
-            padding: 10px 28px;
-            border-radius: 40px;
-            backdrop-filter: blur(4px);
-            background: rgba(20, 30, 50, 0.2);
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 0.9; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.02); }
-        }
-
-        /* Container chính của lyrics */
-        .lyrics-container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(18, 25, 40, 0.45);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 200, 220, 0.15);
-            border-radius: 48px;
-            padding: 28px 22px 36px;
-            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(210, 180, 255, 0.05) inset;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 1s ease, transform 0.8s ease;
-        }
-
-        body.started .lyrics-container {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .song-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 8px 20px;
-            border-bottom: 1px dashed rgba(200, 180, 220, 0.2);
-            margin-bottom: 24px;
-        }
-
-        .song-title {
-            color: #f3e3ff;
-            font-weight: 700;
-            font-size: 1.6rem;
-            letter-spacing: -0.5px;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-
-        .song-artist {
-            color: #b1c3df;
-            font-weight: 400;
-            font-size: 0.9rem;
-            background: rgba(60, 80, 120, 0.25);
-            padding: 6px 16px;
-            border-radius: 40px;
-            border: 0.5px solid #4a6085;
-        }
-
-        /* Khung hiển thị lời bài hát */
-        .lyrics-box {
-            min-height: 320px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .line-item {
-            font-size: 28px;
-            font-weight: 600;
-            margin: 14px 0;
-            padding: 6px 0;
-            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
-            letter-spacing: -0.3px;
-            line-height: 1.4;
-            opacity: 0.35;
-            transform: scale(0.96);
-            color: #cdd6f0;
-            filter: blur(0.3px);
-            background: linear-gradient(90deg, #ffe7b0 0%, #ffb8d1 50%, #c5b9ff 100%);
-            background-size: 200% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            background-position: 0% 0%;
-        }
-
-        .line-item.active {
-            opacity: 1;
-            transform: scale(1);
-            filter: blur(0);
-            text-shadow: 0 0 20px rgba(255, 200, 220, 0.5);
-            font-weight: 700;
-        }
-
-        /* Progress bar nhạc */
-        .progress-container {
-            margin: 16px 8px 8px;
-        }
-
-        .time-labels {
-            display: flex;
-            justify-content: space-between;
-            color: #8e9dbb;
-            font-size: 13px;
-            margin-bottom: 6px;
-        }
-
-        .progress-bar-bg {
-            height: 4px;
-            background: #252f44;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: inset 0 1px 3px #0b0f16;
-        }
-
-        #progress-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #ffb8c6, #a8c0ff);
-            border-radius: 10px;
-            box-shadow: 0 0 12px #ffa5b9;
-            transition: width 0.1s linear;
-        }
-
-        /* Điều khiển play/pause */
-        .play-control {
-            display: flex;
-            justify-content: center;
-            margin: 24px 0 8px;
-        }
-
-        .play-btn {
-            background: rgba(200, 180, 255, 0.1);
-            border: 1.5px solid #6d7da0;
-            color: #e1d9ff;
-            width: 64px;
-            height: 64px;
-            border-radius: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            backdrop-filter: blur(12px);
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.3);
-        }
-
-        .play-btn:hover {
-            border-color: #ffb6c1;
-            color: #ffd9e2;
-            box-shadow: 0 0 18px #ffbfd4;
-            transform: scale(1.02);
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .line-item { font-size: 22px; }
-            .song-title { font-size: 1.3rem; }
+        /* Hiệu ứng chớp màn hình theo nhịp Bass */
+        .flash { animation: flash-hit 0.15s ease-out; }
+        @keyframes flash-hit {
+            0% { background: rgba(255,255,255,0.4); }
+            100% { background: transparent; }
         }
     </style>
 </head>
-<body>
-    <div class="ambient-light"></div>
+<body id="body">
 
-    <!-- MÀN HÌNH CHỜ: CHẠM ĐỂ BẮT ĐẦU -->
-    <div id="splash-screen">
-        <div class="splash-content">
-            <div class="splash-icon">🎤</div>
-            <div class="splash-title">THÁNG TƯ</div>
-            <div class="splash-sub">Lời nói dối của em</div>
-            <div class="splash-hint">✧ Chạm vào màn hình ✧</div>
-        </div>
+    <button id="play-btn" onclick="startEngine()">CHẠY NHẠC & CHỮ</button>
+    
+    <div id="lyrics-container">
+        <div id="lyrics-text"></div>
     </div>
 
-    <!-- GIAO DIỆN CHÍNH -->
-    <div class="lyrics-container">
-        <div class="song-header">
-            <span class="song-title">🎵 Tháng Tư Là Lời Nói Dối</span>
-            <span class="song-artist">Hà Nhi · Remix</span>
-        </div>
-
-        <div class="lyrics-box" id="lyricsDisplay"></div>
-
-        <div class="progress-container">
-            <div class="time-labels">
-                <span id="currentTime">0:00</span>
-                <span id="durationTime">3:45</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div id="progress-fill"></div>
-            </div>
-        </div>
-
-        <div class="play-control">
-            <div class="play-btn" id="playPauseBtn">
-                <i class="fa-solid fa-play" id="playIcon"></i>
-            </div>
-        </div>
-    </div>
-
-    <!-- AUDIO ELEMENT VỚI LINK RAW GITHUB -->
-    <audio id="bgMusic" preload="auto" loop>
-        <source src="https://raw.githubusercontent.com/nhicode/fps80/main/DBE3051C-1E0A-4F57-8E64-3CE416FDD9C9.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="music" src="DBE3051C-1E0A-4F57-8E64-3CE416FDD9C9.mp3"></audio>
 
     <script>
-        (function(){
-            "use strict";
+        const music = document.getElementById('music');
+        const textDisplay = document.getElementById('lyrics-text');
+        const body = document.getElementById('body');
 
-            // ---------- LYRICS DATA VỚI TIMESTAMP (đã canh theo nhịp remix) ----------
-            const lyricsData = [
-                { time: 0.0,  text: "▸ ▸ ▸   THÁNG TƯ   ◂ ◂ ◂" },
-                { time: 5.0,  text: "Ngày hôm qua đôi ta bên nhau" },
-                { time: 9.0,  text: "Cứ ngỡ sẽ yêu thật lâu" },
-                { time: 13.0, text: "Nào ngờ đâu hôm nay em buông" },
-                { time: 17.5, text: "Câu chia tay thật mau" },
-                { time: 21.5, text: "Em nói em chẳng còn yêu anh" },
-                { time: 26.0, text: "Em nói em thấy mình cô đơn" },
-                { time: 30.5, text: "Khi bên cạnh anh" },
-                { time: 33.0, text: "Em không còn vui như lúc xưa" },
-                { time: 38.0, text: "Vậy thì thôi ta chia tay nhau" },
-                { time: 42.5, text: "Em cứ đi theo người sau" },
-                { time: 47.0, text: "Đừng buồn đau, anh không trách em" },
-                { time: 51.5, text: "Do anh chẳng tốt" },
-                { time: 55.0, text: "Anh sẽ quên đi chuyện yêu thương" },
-                { time: 59.5, text: "Anh sẽ không mong chờ ai nữa" },
-                { time: 64.0, text: "Bởi vì anh sợ" },
-                { time: 67.0, text: "Sợ lời nói dối của em" },
-                { time: 71.0, text: "♫  ĐIỆP KHÚC  ♫" },
-                { time: 73.0, text: "Tháng Tư là lời nói dối của em" },
-                { time: 78.0, text: "Nắng vàng sao bỗng nhạt nhòa bên thềm" },
-                { time: 83.0, text: "Tháng Tư là lời nói dối của em" },
-                { time: 88.0, text: "Mưa rơi ướt mi, ai đâu hay mình đã chia ly" },
-                { time: 94.0, text: "Tháng Tư là lời nói dối của em" },
-                { time: 99.0, text: "Cố chấp yêu em dù biết em không cần" },
-                { time: 104.0, text: "Tháng Tư là lời nói dối của em" },
-                { time: 109.0, text: "Cảm ơn em đã cho anh biết mình là người đến sau" },
-                { time: 116.0, text: "Ngày em đi, cơn mưa rơi rơi" },
-                { time: 120.0, text: "Ướt hết con tim này rồi" },
-                { time: 124.5, text: "Đường em đi, sao không quay lưng" },
-                { time: 128.5, text: "Ôm anh thêm một lần thôi" },
-                { time: 133.0, text: "Anh biết em giờ này bên ai" },
-                { time: 137.5, text: "Anh biết em chẳng cần anh đâu" },
-                { time: 141.5, text: "Nhưng sao trong lòng anh" },
-                { time: 144.5, text: "Vẫn mãi yêu em rất lâu" },
-                { time: 149.0, text: "🎶  Tháng Tư ...  🎶" },
-                { time: 152.0, text: "Tháng Tư là lời nói dối của em" },
-                { time: 157.0, text: "Nắng vàng sao bỗng nhạt nhòa bên thềm" },
-                { time: 162.0, text: "Tháng Tư là lời nói dối của em" },
-                { time: 167.0, text: "Mưa rơi ướt mi, ai đâu hay mình đã chia ly" },
-                { time: 174.0, text: "Ngày tháng trôi qua thật mau" },
-                { time: 178.0, text: "Nỗi đau rồi cũng phai màu" },
-                { time: 182.0, text: "Chỉ có anh là vẫn đứng sau" },
-                { time: 186.0, text: "Chờ em dù biết không có nhau" },
-                { time: 192.0, text: "Tháng Tư là lời nói dối của em..." },
-                { time: 200.0, text: "Lời nói dối của em..." },
-                { time: 206.0, text: "Mãi mãi là lời nói dối của riêng em..." },
-                { time: 215.0, text: "🌸  Kết thúc  🌸" }
-            ];
+        // LỜI BÀI HÁT KHỚP TỪNG GIÂY VỚI FILE CỦA BẠN
+        const syncData = [
+            { t: 0.1, txt: "Nhưng cánh hoa phai tàn..." },
+            { t: 2.5, txt: "THẬT NHANH" },
+            { t: 4.0, txt: "EM CÓ VỀ XA" },
+            { t: 5.5, txt: "EM CÓ VỀ XA MÃI" },
+            { t: 7.5, txt: "THÁNG TƯ ĐÔI KHI" },
+            { t: 9.5, txt: "THẬT MONG MANH" },
+            { t: 11.5, txt: "ĐỂ MÌNH NÓI RA" },
+            { t: 13.5, txt: "CÂU CHÂN THẬT" },
+            { t: 15.5, txt: "GIÁ NHƯ TÔI" },
+            { t: 17.5, txt: "MỘT LẦN TIN EM" },
+            { t: 19.5, txt: "CÔ GÁI CÓ NỤ CƯỜI" },
+            { t: 21.0, txt: "TỎA NẮNG..." },
+            { t: 23.0, txt: "ĐỂ LẠI THÁNG TƯ" },
+            { t: 25.5, txt: "Ở ĐÓ!" }, // BẮT ĐẦU DROP
+            { t: 27.0, txt: "THÁNG TƯ LÀ" },
+            { t: 28.5, txt: "LỜI NÓI DỐI" },
+            { t: 30.0, txt: "CỦA EM" },
+            { t: 32.0, txt: "ANH CỨ BƯỚC ĐI" },
+            { t: 34.0, txt: "VẬY ĐI!" },
+            { t: 36.0, txt: "TẤT CẢ LÀ" },
+            { t: 38.0, txt: "LỪA DỐI!!!" }
+        ];
 
-            // ---------- ELEMENTS ----------
-            const audio = document.getElementById('bgMusic');
-            const splash = document.getElementById('splash-screen');
-            const bodyEl = document.body;
-            const lyricsDiv = document.getElementById('lyricsDisplay');
-            const playBtn = document.getElementById('playPauseBtn');
-            const playIcon = document.getElementById('playIcon');
-            const progressFill = document.getElementById('progress-fill');
-            const currentTimeSpan = document.getElementById('currentTime');
-            const durationSpan = document.getElementById('durationTime');
+        function startEngine() {
+            document.getElementById('play-btn').style.display = 'none';
+            music.play();
+            
+            music.addEventListener('timeupdate', () => {
+                const now = music.currentTime;
+                const activeLine = syncData.filter(x => x.t <= now).pop();
 
-            let animationFrame = null;
-            let currentLineIndex = -1;
-            let isPlaying = false;
-
-            // Render lyrics
-            function renderLyrics() {
-                let html = '';
-                lyricsData.forEach((item, idx) => {
-                    html += `<div class="line-item" data-index="${idx}">${item.text}</div>`;
-                });
-                lyricsDiv.innerHTML = html;
-            }
-            renderLyrics();
-
-            // Format time
-            function formatTime(sec) {
-                const m = Math.floor(sec / 60);
-                const s = Math.floor(sec % 60);
-                return `${m}:${s < 10 ? '0' : ''}${s}`;
-            }
-
-            // Cập nhật duration khi audio load xong
-            audio.addEventListener('loadedmetadata', () => {
-                durationSpan.textContent = formatTime(audio.duration || 225);
-            });
-
-            // Cập nhật active line và progress
-            function updateActiveLine(currentTime) {
-                let activeIdx = -1;
-                for (let i = 0; i < lyricsData.length; i++) {
-                    if (currentTime >= lyricsData[i].time) activeIdx = i;
-                }
-                if (activeIdx !== currentLineIndex) {
-                    const prev = document.querySelector(`.line-item[data-index="${currentLineIndex}"]`);
-                    if (prev) prev.classList.remove('active');
-                    const next = document.querySelector(`.line-item[data-index="${activeIdx}"]`);
-                    if (next) next.classList.add('active');
-                    currentLineIndex = activeIdx;
-                }
-                
-                // Karaoke fill effect
-                const activeEl = document.querySelector(`.line-item[data-index="${activeIdx}"]`);
-                if (activeEl) {
-                    const line = lyricsData[activeIdx];
-                    const progress = Math.min((currentTime - line.time) / 4.0, 1.0);
-                    activeEl.style.backgroundPosition = `${progress * 100}% 0%`;
-                }
-            }
-
-            function updateProgress() {
-                if (!audio.paused) {
-                    const current = audio.currentTime;
-                    currentTimeSpan.textContent = formatTime(current);
-                    const percent = (current / audio.duration) * 100;
-                    progressFill.style.width = percent + '%';
-                    updateActiveLine(current);
-                }
-                animationFrame = requestAnimationFrame(updateProgress);
-            }
-
-            // Play music
-            function playMusic() {
-                audio.play().then(() => {
-                    isPlaying = true;
-                    playIcon.classList.remove('fa-play');
-                    playIcon.classList.add('fa-pause');
-                    animationFrame = requestAnimationFrame(updateProgress);
-                }).catch(e => console.log('Play failed:', e));
-            }
-
-            // Pause music
-            function pauseMusic() {
-                audio.pause();
-                isPlaying = false;
-                playIcon.classList.remove('fa-pause');
-                playIcon.classList.add('fa-play');
-                if (animationFrame) {
-                    cancelAnimationFrame(animationFrame);
-                    animationFrame = null;
-                }
-            }
-
-            // Reset về đầu
-            function resetToStart() {
-                audio.currentTime = 0;
-                progressFill.style.width = '0%';
-                currentTimeSpan.textContent = '0:00';
-                updateActiveLine(0);
-            }
-
-            // Xử lý chạm màn hình splash
-            function handleSplashClick() {
-                splash.style.opacity = '0';
-                splash.style.visibility = 'hidden';
-                bodyEl.classList.add('started');
-                
-                // Tự động play sau khi chạm
-                setTimeout(() => {
-                    if (audio.paused) {
-                        resetToStart();
-                        playMusic();
-                    }
-                }, 300);
-            }
-
-            splash.addEventListener('click', handleSplashClick);
-
-            // Play/Pause button
-            playBtn.addEventListener('click', () => {
-                if (!bodyEl.classList.contains('started')) {
-                    handleSplashClick();
-                    return;
-                }
-                
-                if (audio.paused) {
-                    if (audio.currentTime >= audio.duration - 0.5) {
-                        audio.currentTime = 0;
-                    }
-                    playMusic();
-                } else {
-                    pauseMusic();
+                if (activeLine && textDisplay.innerText !== activeLine.txt) {
+                    textDisplay.classList.remove('active');
+                    
+                    // Delay cực ngắn để tạo hiệu ứng pop-up
+                    setTimeout(() => {
+                        textDisplay.innerText = activeLine.txt;
+                        textDisplay.classList.add('active');
+                        
+                        // Hiệu ứng giật màn hình khi vào nhịp Drop (từ giây 25)
+                        if (now >= 25) {
+                            body.classList.add('flash');
+                            setTimeout(() => body.classList.remove('flash'), 150);
+                        }
+                    }, 50);
                 }
             });
-
-            // Khi audio kết thúc
-            audio.addEventListener('ended', () => {
-                pauseMusic();
-                progressFill.style.width = '100%';
-                currentTimeSpan.textContent = formatTime(audio.duration);
-            });
-
-            // Khởi tạo
-            window.addEventListener('load', () => {
-                resetToStart();
-                if (audio.readyState >= 1) {
-                    durationSpan.textContent = formatTime(audio.duration || 225);
-                }
-            });
-
-        })();
+        }
     </script>
 </body>
 </html>
