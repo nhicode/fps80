@@ -2,24 +2,27 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tháng Tư Remix - Instant Play</title>
+    <title>Tháng Tư Remix - Touch to Play</title>
     <style>
-        /* XÓA BỎ HOÀN TOÀN MÀN HÌNH ĐEN */
+        /* NỀN ĐEN KHI CHƯA CHẠY */
         body, html { 
             margin: 0; padding: 0; height: 100%; 
             overflow: hidden;
             font-family: 'Arial Black', sans-serif;
-            background: transparent !important;
+            background: #000;
+            cursor: pointer; /* Hiển thị biểu tượng bàn tay để biết là cần click */
         }
 
         #video-bg {
             position: fixed;
             top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
-            width: auto; height: auto;
             z-index: -1; 
             transform: translate(-50%, -50%);
             object-fit: cover;
+            display: block;
+            opacity: 0; /* Ẩn video khi chưa chạm */
+            transition: opacity 0.5s ease;
         }
 
         #lyrics-container {
@@ -42,11 +45,25 @@
         }
 
         #lyrics-text.active { opacity: 1; }
+
+        /* THÔNG BÁO HƯỚNG DẪN NHẸ */
+        #hint {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 100;
+        }
     </style>
 </head>
-<body>
+<body onclick="startAll()">
 
-    <video id="video-bg" autoplay muted playsinline>
+    <div id="hint">CHẠM VÀO MÀN HÌNH ĐỂ CHẠY</div>
+
+    <video id="video-bg" muted playsinline>
         <source src="https://raw.githubusercontent.com/nhicode/fps80/main/IMG_1596.MOV" type="video/quicktime">
         <source src="https://raw.githubusercontent.com/nhicode/fps80/main/IMG_1596.MOV" type="video/mp4">
     </video>
@@ -61,6 +78,7 @@
         const video = document.getElementById('video-bg');
         const music = document.getElementById('music');
         const textDisplay = document.getElementById('lyrics-text');
+        const hint = document.getElementById('hint');
 
         const syncData = [
             { t: 0.1, txt: "Những cánh hoa phai tàn" },
@@ -79,30 +97,20 @@
             { t: 24.5, txt: "Ở ĐÓ!" }
         ];
 
-        function init() {
-            // Cố gắng phát nhạc ngay lập tức
-            music.play().then(() => {
-                video.play();
-                startLyrics();
-            }).catch(e => {
-                // Nếu bị chặn, sẽ đợi bất kỳ hành động nào từ người dùng (di chuột, cuộn, click)
-                const runOnce = () => {
-                    music.play();
-                    video.play();
-                    startLyrics();
-                    window.removeEventListener('mousemove', runOnce);
-                    window.removeEventListener('scroll', runOnce);
-                    window.removeEventListener('touchstart', runOnce);
-                    window.removeEventListener('click', runOnce);
-                };
-                window.addEventListener('mousemove', runOnce);
-                window.addEventListener('scroll', runOnce);
-                window.addEventListener('touchstart', runOnce);
-                window.addEventListener('click', runOnce);
-            });
-        }
+        let started = false;
 
-        function startLyrics() {
+        function startAll() {
+            if (started) return; // Chỉ chạy 1 lần duy nhất khi chạm
+            started = true;
+
+            // Ẩn dòng chữ hướng dẫn
+            hint.style.display = 'none';
+
+            // Hiện video và chạy
+            video.style.opacity = '1';
+            video.play();
+            music.play();
+            
             function update() {
                 const now = music.currentTime;
                 const current = syncData.filter(l => l.t <= now).pop();
@@ -119,8 +127,7 @@
             update();
         }
 
-        // Chạy ngay khi trang vừa load xong
-        window.onload = init;
+        // Dừng video ở khung cuối
         video.onended = () => { video.pause(); };
     </script>
 </body>
