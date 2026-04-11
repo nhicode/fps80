@@ -2,17 +2,16 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tháng Tư Remix - No Black Screen</title>
+    <title>Tháng Tư Remix - Instant Play</title>
     <style>
-        /* XÓA HẾT MÀU ĐỀN NỀN */
+        /* XÓA BỎ HOÀN TOÀN MÀN HÌNH ĐEN */
         body, html { 
             margin: 0; padding: 0; height: 100%; 
             overflow: hidden;
             font-family: 'Arial Black', sans-serif;
-            background: transparent !important; 
+            background: transparent !important;
         }
 
-        /* VIDEO NỀN - HIỂN THỊ DƯỚI CÙNG NHƯNG KHÔNG BỊ CHE */
         #video-bg {
             position: fixed;
             top: 50%; left: 50%;
@@ -21,12 +20,11 @@
             z-index: -1; 
             transform: translate(-50%, -50%);
             object-fit: cover;
-            display: block;
         }
 
         #lyrics-container {
             position: absolute;
-            bottom: 12%; 
+            bottom: 15%; 
             width: 100%;
             text-align: center;
             z-index: 10;
@@ -38,7 +36,6 @@
             font-size: 3.5rem;
             font-weight: 900;
             text-transform: uppercase;
-            /* Hiệu ứng sáng cực mạnh để nổi trên video */
             text-shadow: 0 0 15px #fff, 0 0 30px #00ffff, 0 0 45px #00ffff;
             opacity: 0;
             transition: opacity 0.2s ease;
@@ -47,9 +44,9 @@
         #lyrics-text.active { opacity: 1; }
     </style>
 </head>
-<body onclick="forceStart()">
+<body>
 
-    <video id="video-bg" muted playsinline autoplay>
+    <video id="video-bg" autoplay muted playsinline>
         <source src="https://raw.githubusercontent.com/nhicode/fps80/main/IMG_1596.MOV" type="video/quicktime">
         <source src="https://raw.githubusercontent.com/nhicode/fps80/main/IMG_1596.MOV" type="video/mp4">
     </video>
@@ -82,24 +79,28 @@
             { t: 24.5, txt: "Ở ĐÓ!" }
         ];
 
-        // Hàm kích hoạt ngay khi người dùng chạm vào màn hình
-        function forceStart() {
-            if (music.paused) {
-                music.play();
-                video.play();
-                startLyrics();
-            }
-        }
-
-        // Tự động thử chạy khi load
-        window.addEventListener('load', () => {
+        function init() {
+            // Cố gắng phát nhạc ngay lập tức
             music.play().then(() => {
                 video.play();
                 startLyrics();
-            }).catch(() => {
-                console.log("Cần 1 click để kích hoạt nhịp điệu!");
+            }).catch(e => {
+                // Nếu bị chặn, sẽ đợi bất kỳ hành động nào từ người dùng (di chuột, cuộn, click)
+                const runOnce = () => {
+                    music.play();
+                    video.play();
+                    startLyrics();
+                    window.removeEventListener('mousemove', runOnce);
+                    window.removeEventListener('scroll', runOnce);
+                    window.removeEventListener('touchstart', runOnce);
+                    window.removeEventListener('click', runOnce);
+                };
+                window.addEventListener('mousemove', runOnce);
+                window.addEventListener('scroll', runOnce);
+                window.addEventListener('touchstart', runOnce);
+                window.addEventListener('click', runOnce);
             });
-        });
+        }
 
         function startLyrics() {
             function update() {
@@ -118,7 +119,8 @@
             update();
         }
 
-        // Dừng ở khung hình cuối
+        // Chạy ngay khi trang vừa load xong
+        window.onload = init;
         video.onended = () => { video.pause(); };
     </script>
 </body>
