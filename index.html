@@ -2,34 +2,38 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tháng Tư Remix - Minimalist Black</title>
+    <title>Tháng Tư Remix - GitHub Video Background</title>
     <style>
-        /* THIẾT LẬP MÀN HÌNH ĐEN TUYỆT ĐỐI */
         body, html { 
             margin: 0; padding: 0; height: 100%; 
-            background: #000; /* Màn hình đen */
-            overflow: hidden;
+            background: #000; overflow: hidden;
             font-family: 'Arial Black', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
-        /* CONTAINER LỜI BÀI HÁT */
+        /* VIDEO NỀN TỪ GITHUB */
+        #video-bg {
+            position: fixed;
+            right: 0; bottom: 0;
+            min-width: 100%; min-height: 100%;
+            z-index: -1;
+            filter: brightness(0.5); /* Tăng độ tập trung vào chữ */
+            object-fit: cover;
+        }
+
+        /* CONTAINER LỜI BÀI HÁT - HẠ THẤP VỊ TRÍ */
         #lyrics-container {
             position: absolute;
-            bottom: 20%; /* Vị trí thấp bên dưới như yêu cầu trước đó */
+            bottom: 15%; 
             width: 100%;
             text-align: center;
         }
 
         #lyrics-text {
             color: #fff;
-            font-size: 3.8rem; /* Tăng nhẹ kích thước cho rõ trên nền đen */
+            font-size: 3.5rem;
             font-weight: 900;
             text-transform: uppercase;
-            /* Hiệu ứng chữ sáng rực rỡ (Cyan Glow) */
-            text-shadow: 0 0 15px #fff, 0 0 30px #00ffff, 0 0 45px #00ffff;
+            text-shadow: 0 0 10px #fff, 0 0 20px #00ffff, 0 0 40px #00ffff;
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.2s ease-out;
@@ -40,32 +44,23 @@
             transform: translateY(0);
         }
 
-        /* NÚT BẤM KHỞI ĐỘNG */
         #play-btn {
-            position: fixed; 
-            padding: 20px 50px; 
-            font-size: 1.5rem;
-            background: none; 
-            border: 2px solid #00ffff; 
-            color: #00ffff;
-            border-radius: 50px;
-            cursor: pointer; 
-            font-weight: bold; 
-            z-index: 1000;
-            text-shadow: 0 0 10px #00ffff;
-            box-shadow: 0 0 20px #00ffff;
-            transition: 0.3s;
-        }
-
-        #play-btn:hover {
-            background: #00ffff;
-            color: #000;
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 50px; font-size: 1.5rem;
+            background: #00ffff; border: none; border-radius: 50px;
+            cursor: pointer; font-weight: bold; z-index: 1000;
+            box-shadow: 0 0 30px #00ffff;
         }
     </style>
 </head>
 <body>
 
-    <button id="play-btn" onclick="startAll()">BẮT ĐẦU</button>
+    <button id="play-btn" onclick="startAll()">KÍCH HOẠT TRẢI NGHIỆM</button>
+
+    <video id="video-bg" loop muted playsinline>
+        <source src="https://raw.githubusercontent.com/nhicode/fps80/main/IMG_1596.MOV" type="video/mp4">
+    </video>
 
     <div id="lyrics-container">
         <div id="lyrics-text"></div>
@@ -74,41 +69,39 @@
     <audio id="music" src="9919142E-5301-4E5F-A7E7-03B34A407F2D.mp3"></audio>
 
     <script>
+        const video = document.getElementById('video-bg');
         const music = document.getElementById('music');
         const textDisplay = document.getElementById('lyrics-text');
         const btn = document.getElementById('play-btn');
 
-        // DỮ LIỆU ĐỒNG BỘ LỜI
         const syncData = [
-            { t: 0, txt: "..." },
             { t: 0.1, txt: "Những cánh hoa phai tàn" },
-            { t: 2.0, txt: "THẬT NHANH!" },
-            { t: 3.5, txt: "EM CÓ VỀ XA..." },
-            { t: 5.3, txt: "EM CÓ VỀ XA MÃI?" },
-            { t: 7.0, txt: "Tháng tư đôi khi" },
-            { t: 9.0, txt: "THẬT MONG MANH" },
-            { t: 10.7, txt: "Để mình nói ra" },
-            { t: 12.5, txt: "CÂU CHÂN THẬT" },
-            { t: 14.5, txt: "Giá như tôi một lần" },
-            { t: 16.0, txt: "TIN EM..." },
-            { t: 17.7, txt: "Cô tôi thương" },
-            { t: 19.7, txt: "nay hoà vào mây gió" },
+            { t: 2.1, txt: "THẬT NHANH!" },
+            { t: 3.7, txt: "EM CÓ VỀ XA..." },
+            { t: 5.5, txt: "EM CÓ VỀ XA MÃI?" },
+            { t: 7.3, txt: "Tháng tư đôi khi" },
+            { t: 9.1, txt: "THẬT MONG MANH" },
+            { t: 11.0, txt: "Để mình nói ra" },
+            { t: 12.8, txt: "CÂU CHÂN THẬT" },
+            { t: 14.8, txt: "Giá như tôi một lần" },
+            { t: 16.8, txt: "TIN EM..." },
+            { t: 18.5, txt: "Cô tôi thương" },
+            { t: 20.5, txt: "nay hoà vào mây gió" },
             { t: 22.5, txt: "Để lại tháng tư..." },
-            { t: 24.0, txt: "Ở ĐÓ!" }
+            { t: 24.5, txt: "Ở ĐÓ!" }
         ];
 
         function startAll() {
             btn.style.display = 'none';
+            video.play();
             music.play();
             
             function update() {
                 const now = music.currentTime;
-                // Lấy câu thoại khớp với thời gian hiện tại
                 const current = syncData.filter(l => l.t <= now).pop();
 
                 if (current && textDisplay.innerText !== current.txt) {
                     textDisplay.classList.remove('active');
-                    // Delay nhỏ để tạo hiệu ứng mượt khi đổi chữ
                     setTimeout(() => {
                         textDisplay.innerText = current.txt;
                         textDisplay.classList.add('active');
@@ -118,6 +111,10 @@
             }
             update();
         }
+
+        // Tự động đồng bộ Video theo nhạc
+        music.onplay = () => video.play();
+        music.onpause = () => video.pause();
     </script>
 </body>
 </html>
