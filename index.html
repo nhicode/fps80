@@ -2,17 +2,30 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tháng Tư Remix - Touch to Play</title>
+    <title>Tháng Tư Remix - Final Fix</title>
     <style>
-        /* NỀN ĐEN KHI CHƯA CHẠY */
+        /* TRONG SUỐT HOÀN TOÀN ĐỂ LỘ VIDEO */
         body, html { 
             margin: 0; padding: 0; height: 100%; 
             overflow: hidden;
             font-family: 'Arial Black', sans-serif;
-            background: #000;
-            cursor: pointer; /* Hiển thị biểu tượng bàn tay để biết là cần click */
+            background: transparent !important; 
         }
 
+        /* LỚP NỀN CHỜ (CHỈ HIỆN KHI CHƯA CLICK) */
+        #waiting-room {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 100;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+        }
+
+        #waiting-room p {
+            color: #fff; font-size: 1.2rem; text-transform: uppercase;
+            letter-spacing: 2px; opacity: 0.5;
+        }
+
+        /* VIDEO NỀN */
         #video-bg {
             position: fixed;
             top: 50%; left: 50%;
@@ -21,13 +34,12 @@
             transform: translate(-50%, -50%);
             object-fit: cover;
             display: block;
-            opacity: 0; /* Ẩn video khi chưa chạm */
-            transition: opacity 0.5s ease;
+            visibility: hidden; /* Chỉ hiện khi bắt đầu */
         }
 
         #lyrics-container {
             position: absolute;
-            bottom: 15%; 
+            bottom: 12%; 
             width: 100%;
             text-align: center;
             z-index: 10;
@@ -45,23 +57,13 @@
         }
 
         #lyrics-text.active { opacity: 1; }
-
-        /* THÔNG BÁO HƯỚNG DẪN NHẸ */
-        #hint {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            z-index: 100;
-        }
     </style>
 </head>
 <body onclick="startAll()">
 
-    <div id="hint">CHẠM VÀO MÀN HÌNH ĐỂ CHẠY</div>
+    <div id="waiting-room">
+        <p>CHẠM VÀO MÀN HÌNH ĐỂ KÍCH HOẠT</p>
+    </div>
 
     <video id="video-bg" muted playsinline>
         <source src="https://raw.githubusercontent.com/nhicode/fps80/main/IMG_1596.MOV" type="video/quicktime">
@@ -78,7 +80,7 @@
         const video = document.getElementById('video-bg');
         const music = document.getElementById('music');
         const textDisplay = document.getElementById('lyrics-text');
-        const hint = document.getElementById('hint');
+        const waitingRoom = document.getElementById('waiting-room');
 
         const syncData = [
             { t: 0.1, txt: "Những cánh hoa phai tàn" },
@@ -97,17 +99,17 @@
             { t: 24.5, txt: "Ở ĐÓ!" }
         ];
 
-        let started = false;
+        let isRunning = false;
 
         function startAll() {
-            if (started) return; // Chỉ chạy 1 lần duy nhất khi chạm
-            started = true;
+            if (isRunning) return;
+            isRunning = true;
 
-            // Ẩn dòng chữ hướng dẫn
-            hint.style.display = 'none';
-
-            // Hiện video và chạy
-            video.style.opacity = '1';
+            // Xóa bỏ màn hình chờ đen ngay lập tức
+            waitingRoom.style.display = 'none';
+            
+            // Hiện video và kích hoạt âm thanh
+            video.style.visibility = 'visible';
             video.play();
             music.play();
             
@@ -127,7 +129,7 @@
             update();
         }
 
-        // Dừng video ở khung cuối
+        // Dừng video ở khung cuối, không reset
         video.onended = () => { video.pause(); };
     </script>
 </body>
