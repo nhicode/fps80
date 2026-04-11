@@ -2,44 +2,30 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tháng Tư Remix - Transparent Fix</title>
+    <title>Tháng Tư Remix - Auto Play</title>
     <style>
-        /* XÓA BỎ NỀN ĐEN - ĐỂ TRỐNG ĐỂ VIDEO HIỆN LÊN */
         body, html { 
             margin: 0; padding: 0; height: 100%; 
             overflow: hidden;
             font-family: 'Arial Black', sans-serif;
-            background: none !important; /* Buộc không có nền */
+            background: #000;
         }
 
-        /* VIDEO NỀN - ĐƯA RA LỚP SAU CÙNG */
         #video-bg {
             position: fixed;
             top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
-            width: auto; height: auto;
             z-index: -1; 
             transform: translate(-50%, -50%);
             object-fit: cover;
-            display: block;
-        }
-
-        /* LỚP PHỦ LÀM TỐI NHẸ (CHỈ KHI VIDEO ĐÃ CHẠY) */
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.3); /* Chỉ tối 30% để nổi chữ, không đen kịt */
-            z-index: 0;
-            pointer-events: none;
         }
 
         #lyrics-container {
             position: absolute;
-            bottom: 12%; /* Hạ thấp chữ xuống dưới */
+            bottom: 15%; 
             width: 100%;
             text-align: center;
             z-index: 10;
-            pointer-events: none;
         }
 
         #lyrics-text {
@@ -53,23 +39,11 @@
         }
 
         #lyrics-text.active { opacity: 1; }
-
-        #play-btn {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px 50px; font-size: 1.5rem;
-            background: #00ffff; border: none; border-radius: 50px;
-            cursor: pointer; font-weight: bold; z-index: 1000;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
-        }
     </style>
 </head>
-<body>
+<body onload="autoStart()">
 
-    <button id="play-btn" onclick="startAll()">BẤM ĐỂ HIỆN VIDEO</button>
-    <div class="overlay"></div>
-
-    <video id="video-bg" loop muted playsinline autoplay>
+    <video id="video-bg" muted playsinline>
         <source src="https://raw.githubusercontent.com/nhicode/fps80/main/IMG_1596.MOV" type="video/quicktime">
         <source src="https://raw.githubusercontent.com/nhicode/fps80/main/IMG_1596.MOV" type="video/mp4">
     </video>
@@ -84,7 +58,6 @@
         const video = document.getElementById('video-bg');
         const music = document.getElementById('music');
         const textDisplay = document.getElementById('lyrics-text');
-        const btn = document.getElementById('play-btn');
 
         const syncData = [
             { t: 0.1, txt: "Những cánh hoa phai tàn" },
@@ -103,11 +76,28 @@
             { t: 24.5, txt: "Ở ĐÓ!" }
         ];
 
-        function startAll() {
-            btn.style.display = 'none';
-            video.play();
-            music.play();
-            
+        function autoStart() {
+            // Cố gắng chạy nhạc và video ngay khi load trang
+            const playPromise = music.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Nhạc chạy được -> Cho video chạy luôn
+                    video.play();
+                    startLyrics();
+                }).catch(error => {
+                    // Nếu trình duyệt vẫn chặn, cần click 1 cái bất kỳ vào màn hình để kích hoạt
+                    console.log("Trình duyệt chặn tự động. Click bất kỳ để chạy!");
+                    document.addEventListener('click', () => {
+                        music.play();
+                        video.play();
+                        startLyrics();
+                    }, { once: true });
+                });
+            }
+        }
+
+        function startLyrics() {
             function update() {
                 const now = music.currentTime;
                 const current = syncData.filter(l => l.t <= now).pop();
@@ -119,10 +109,15 @@
                         textDisplay.classList.add('active');
                     }, 30);
                 }
-                requestAnimationFrame(update);
+                
+                if (!music.paused) {
+                    requestAnimationFrame(update);
+                }
             }
             update();
         }
+
+        video.onended = () => { video.pause(); };
     </script>
 </body>
 </html>
